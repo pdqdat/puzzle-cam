@@ -12,10 +12,12 @@ let SIZE = {
     columns: 3,
 };
 let PIECES = [];
+let SELECTED_PIECE = null;
 
 function main() {
     CANVAS = document.getElementById("myCanvas");
     CONTEXT = CANVAS.getContext("2d");
+    addEventListener();
 
     // ask for permission to use the camera
     let promise = navigator.mediaDevices.getUserMedia({ video: true });
@@ -43,6 +45,58 @@ function main() {
         .catch(function (error) {
             alert("Camera error: " + error);
         });
+}
+
+function addEventListener() {
+    CANVAS.addEventListener("mousedown", onMouseDown);
+    CANVAS.addEventListener("mousemove", onMouseMove);
+    CANVAS.addEventListener("mouseup", onMouseUp);
+}
+
+function onMouseDown(event) {
+    SELECTED_PIECE = getPressedPiece(event);
+
+    if (SELECTED_PIECE != null) {
+        const index = PIECES.indexOf(SELECTED_PIECE);
+
+        if (index > -1) {
+            PIECES.splice(index, 1);
+            PIECES.push(SELECTED_PIECE);
+        }
+
+        SELECTED_PIECE.offset = {
+            x: event.x - SELECTED_PIECE.x,
+            y: event.y - SELECTED_PIECE.y,
+        };
+    }
+}
+
+function onMouseMove(event) {
+    if (SELECTED_PIECE != null) {
+        SELECTED_PIECE.x = event.x - SELECTED_PIECE.offset.x;
+        SELECTED_PIECE.y = event.y - SELECTED_PIECE.offset.y;
+    }
+}
+
+function onMouseUp(event) {
+    if (SELECTED_PIECE.isClose()) {
+        SELECTED_PIECE.snap();
+    }
+
+    SELECTED_PIECE = null;
+}
+
+function getPressedPiece(loc) {
+    for (let i = PIECES.length - 1; i >= 0; i--)
+        if (
+            loc.x > PIECES[i].x &&
+            loc.x < PIECES[i].x + PIECES[i].width &&
+            loc.y > PIECES[i].y &&
+            loc.y < PIECES[i].y + PIECES[i].height
+        )
+            return PIECES[i];
+
+    return null;
 }
 
 function handleResize() {
@@ -115,6 +169,9 @@ class Piece {
 
         this.width = SIZE.width / SIZE.columns;
         this.height = SIZE.height / SIZE.rows;
+
+        this.xCorrect = this.x;
+        this.yCorrect = this.y;
     }
 
     draw(context) {
@@ -136,4 +193,26 @@ class Piece {
 
         context.stroke();
     }
+
+    isClose() {
+        if (
+            distance(
+                { x: this.x, y: this.y },
+                { x: this.xCorrect, y: this.yCorrect }
+            ) <
+            this.width / 3
+        )
+            return true;
+
+        return false;
+    }
+
+    snap() {
+        this.x = this.xCorrect;
+        this.y = this.yCorrect;
+    }
+}
+
+function distance(p1, p2) {
+    return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
 }
