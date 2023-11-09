@@ -13,6 +13,8 @@ let SIZE = {
 };
 let PIECES = [];
 let SELECTED_PIECE = null;
+let START_TIME = null;
+let END_TIME = null;
 
 function main() {
     CANVAS = document.getElementById("myCanvas");
@@ -39,12 +41,76 @@ function main() {
 
                 initializePieces(SIZE.rows, SIZE.columns);
 
-                updateCanvas();
+                updateGame();
             };
         })
         .catch(function (error) {
             alert("Camera error: " + error);
         });
+}
+
+function setDifficulty() {
+    let difficulty = document.getElementById("difficulty").value;
+
+    switch (difficulty) {
+        case "easy":
+            initializePieces(3, 3);
+            break;
+        case "medium":
+            initializePieces(5, 5);
+            break;
+        case "hard":
+            initializePieces(10, 10);
+            break;
+        case "insane":
+            initializePieces(20, 15);
+            break;
+    }
+}
+
+function restart() {
+    START_TIME = new Date().getTime();
+    END_TIME = null;
+
+    randomizePieces();
+}
+
+function updateTime() {
+    let now = new Date().getTime();
+
+    if (START_TIME != null) {
+        if (END_TIME != null) {
+            document.getElementById("time").innerHTML = formatTime(
+                END_TIME - START_TIME
+            );
+        } else {
+            document.getElementById("time").innerHTML = formatTime(
+                now - START_TIME
+            );
+        }
+    }
+}
+
+function isComplete() {
+    for (let i = 0; i < PIECES.length; i++)
+        if (PIECES[i].correct == false) return false;
+
+    return true;
+}
+
+function formatTime(milliseconds) {
+    let seconds = Math.floor(milliseconds / 1000);
+    let ss = Math.floor(seconds % 60);
+    let mm = Math.floor((seconds % (60 * 60)) / 60);
+    let hh = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60));
+
+    let formattedTime = hh.toString().padStart(2, "0");
+    formattedTime += ":";
+    formattedTime += mm.toString().padStart(2, "0");
+    formattedTime += ":";
+    formattedTime += ss.toString().padStart(2, "0");
+
+    return formattedTime;
 }
 
 function addEventListener() {
@@ -72,6 +138,8 @@ function onMouseDown(event) {
             x: event.x - SELECTED_PIECE.x,
             y: event.y - SELECTED_PIECE.y,
         };
+
+        SELECTED_PIECE.correct = false;
     }
 }
 
@@ -85,6 +153,11 @@ function onMouseMove(event) {
 function onMouseUp() {
     if (SELECTED_PIECE.isClose()) {
         SELECTED_PIECE.snap();
+
+        if (isComplete() && END_TIME == null) {
+            let now = new Date().getTime();
+            END_TIME = now;
+        }
     }
 
     SELECTED_PIECE = null;
@@ -144,7 +217,7 @@ function handleResize() {
     SIZE.y = (window.innerHeight - SIZE.height) / 2;
 }
 
-function updateCanvas() {
+function updateGame() {
     CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);
 
     CONTEXT.globalAlpha = 0.5;
@@ -157,7 +230,9 @@ function updateCanvas() {
         PIECES[i].draw(CONTEXT);
     }
 
-    window.requestAnimationFrame(updateCanvas);
+    updateTime();
+
+    window.requestAnimationFrame(updateGame);
 }
 
 function initializePieces(rows, cols) {
@@ -182,6 +257,8 @@ function randomizePieces() {
 
         PIECES[i].x = loc.x;
         PIECES[i].y = loc.y;
+
+        PIECES[i].correct = false;
     }
 }
 
@@ -198,6 +275,8 @@ class Piece {
 
         this.xCorrect = this.x;
         this.yCorrect = this.y;
+
+        this.correct = true;
     }
 
     draw(context) {
@@ -236,6 +315,8 @@ class Piece {
     snap() {
         this.x = this.xCorrect;
         this.y = this.yCorrect;
+
+        this.correct = true;
     }
 }
 

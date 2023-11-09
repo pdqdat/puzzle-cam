@@ -4,3 +4,8 @@ body {
 
     overscroll-behavior: none;
 }
+
+#menuItems {
+    position: absolute;
+    top: 0;
+}
