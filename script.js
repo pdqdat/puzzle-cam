@@ -16,7 +16,7 @@ let SELECTED_PIECE = null;
 let START_TIME = null;
 let END_TIME = null;
 
-let POP_SOUND = new Audio("pop.mp3");
+let POP_SOUND = new Audio("assets/pop.mp3");
 POP_SOUND.volume = 0.1;
 
 let AUDIO_CONTEXT = new (AudioContext ||
