@@ -51,6 +51,10 @@ function addEventListener() {
     CANVAS.addEventListener("mousedown", onMouseDown);
     CANVAS.addEventListener("mousemove", onMouseMove);
     CANVAS.addEventListener("mouseup", onMouseUp);
+
+    CANVAS.addEventListener("touchstart", onTouchStart);
+    CANVAS.addEventListener("touchmove", onTouchMove);
+    CANVAS.addEventListener("touchend", onTouchEnd);
 }
 
 function onMouseDown(event) {
@@ -78,12 +82,34 @@ function onMouseMove(event) {
     }
 }
 
-function onMouseUp(event) {
+function onMouseUp() {
     if (SELECTED_PIECE.isClose()) {
         SELECTED_PIECE.snap();
     }
 
     SELECTED_PIECE = null;
+}
+
+function onTouchStart(event) {
+    let loc = {
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+    };
+
+    onMouseDown(loc);
+}
+
+function onTouchMove(event) {
+    let loc = {
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+    };
+
+    onMouseMove(loc);
+}
+
+function onTouchEnd() {
+    onMouseUp();
 }
 
 function getPressedPiece(loc) {
