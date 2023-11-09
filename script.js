@@ -73,6 +73,8 @@ function restart() {
     END_TIME = null;
 
     randomizePieces();
+
+    document.getElementById("menuItems").style.display = "none";
 }
 
 function updateTime() {

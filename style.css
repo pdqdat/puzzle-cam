@@ -1,11 +1,53 @@
+:root {
+    --font-size: 3vmin;
+}
+
 body {
     margin: 0;
     overflow: hidden;
+    font-family: Arial, sans-serif;
 
     overscroll-behavior: none;
 }
 
 #menuItems {
     position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    padding: 5vmin;
+    border-radius: 1vmin;
+    font-size: var(--font-size);
+}
+
+select {
+    font-size: var(--font-size);
+    cursor: pointer;
+    border: none;
+    border-radius: 1vmin;
+    outline: none;
+}
+
+button {
+    font-size: var(--font-size);
+    background: rgb(123, 146, 196);
+    color: white;
+    cursor: pointer;
+    border: none;
+    border-radius: 1vmin;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: orange;
+    color: black;
+}
+
+#time {
+    position: absolute;
     top: 0;
+    left: 50%;
+    transform: translate(-50%);
 }
